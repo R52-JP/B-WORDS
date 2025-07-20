@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>【世界史】基本年代テスト</title>
+  <title>【古典】基本単語テスト</title>
   <style>
     @font-face {
       font-family: 'MPlus1-Ebold'; 
@@ -12,28 +12,278 @@
       font-family: 'MPlus1-Regular'; 
       src: url('https://r52-jp.github.io/WORDS/Fonts/MPLUS1-Regular.ttf') format('truetype');
     }
+    @font-face {
+      font-family: 'ZenOldMincho-Medium'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/ZenOldMincho-Medium.ttf') format('truetype');
+    }
     h1 {
         font-weight: normal;
         border-bottom: double 5px #FFC778;
         line-height: 1.5;
-        font-family: "MPlus1-Ebold";
+        font-family: "ZenOldMincho-Medium";
     }
     p {
-      font-family: "MPlus1-Ebold";
+      font-family: "ZenOldMincho-Medium";
       text-align: center;
       font-size:50px;
+    }
+    a {
+      font-family: 'MPlus1-Regular';
+      text-align: center;
+      font-size:20px;
+    }
+    button {
+      font-family: "MPlus1-Ebold";
+      font-size:20px;
+      text-align: center;
+    }
+    .main {
+      width: 100%;
+    }
+    .selection {
+      display: inline-block;
+      width: 31%; 
+      border:0.8px solid #000000;
+      border-radius:10px;
+      background: #e5e5e5;
+    }
+    .between {
+      display: inline-block;
+      width: 1%; 
+    }
+    .whole_selection {
+      width: 100%;
+      margin-bottom: 5px;
+      margin-top:5px;
+    }
+    .button_div {
+      text-align: center;
+    }
+    .underline {
+      font-size: 0px;
+      border-bottom:solid #000000
+    }
+    .TorF {
+      text-align: center;
+      line-height: 0.2;
+      font-family: "MPlus1-Ebold";
+      font-size:50px;
+    }
+    .answers {
+      font-family: "ZenOldMincho-Medium";
+      text-align: center;
+      font-size:25px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      opacity: 0;
+    }
+    .slider {
+      -webkit-appearance: none;/* CSS適用のおまじない */
+      appearance: none;/* CSS適用のおまじない */
+      background: lightgreen;/* バーの色 */
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <h1>【世界史】基本年代テスト！</h1>
+  <h1>【古典】基本単語小テスト</h1>
+  <div id="slider_div"><input type="range" min="0" max="2" step="1" value="0" class="slider" disabled></div>
+  <div id="main" class="main">
+    <br>
+    <button id="start">起動</button>
+  </div>
+  <br>
+  <div id="button_div" class="button_div"></div>
+  <br>
+  <p class="underline"></p>
+  <p id="TorF" class="TorF"></p>
+  <p id="answers" class="answers"></p>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script language="javascript" type="text/javascript">
     let data; // (A).
+    let meaning_list = [];
+    let now_num = -1;
+    let selection_list = [];
     url = "https://r52-jp.github.io/B-WORDS/data.txt";
     $.get(url, (data_) => {
       data = data_ // (A)に値を代入.
     });
+    
+    /*【関数】バーの色を現在値に合わせる */
+    function setSeekbar() {
+      let slider = document.querySelector('.slider'); // input 要素を取得.
+      // 値の取得
+      let now = parseFloat(slider.value); // 現在値.
+      let max = parseFloat(slider.getAttribute('max')); // 最大値.
+      let min = parseFloat(slider.getAttribute('min')); // 最小値.
+      // 現在値がバーではどの位置［％］なのかを計算
+      let percent = (now - min) / (max - min) * 100;
+      // 算出した位置［％］を linear-gradient に適用
+      slider.style.background = `linear-gradient(to right, orange ${percent}%, lightgray ${percent}%)`; 
+    };
+    /* 初期値に合わせてバーの色を変える */
+    setSeekbar();
+
+    //リストをシャッフルする関数(Fisher-Yates法).
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    };
+
+    // 初期化・・・「dataの値の整理(リスト化など)」.
+    function init() {
+      // 改行コードでdata(文字列)を分割→data(リスト).
+      data = data.split("\n");
+      // dataの要素のうち，値が「""」であるものを削除.
+      for (let i=0; i<data.length; i++) {
+        if (data[i] == "") {
+          data.splice(i, 1);
+        };
+      };
+      // ":"でdataの各要素を分割.
+      for (let i=0; i<data.length; i++) {
+        data[i] = data[i].split(":");
+      };
+      // "-"で単語の意味ごとにdata[i][2]を分割.
+      for (let i=0; i<data.length; i++) {
+        data[i][2] = data[i][2].split("/");
+      };
+      // データをシャッフル.
+      data = shuffle(data)
+      // 単語リストを作成.
+      for (let i=0; i<data.length; i++) {
+        meaning_list.push(data[i][2])
+      };
+      document.getElementById("button_div").innerHTML = `<button onclick="CheckTF()" id="check">確認</button>　<button onclick="next()" id="next" disabled>次へ</button>`
+      next()
+    };
+
+    // 0～[引数]までのランダムな整数を返す関数.
+    function rn(number) {
+      return Math.floor(Math.random() * (number+1));
+    }
+
+    // 9個の選択肢を生成する関数.
+    function generate_selection() {
+      selection_list = []
+      // 自分自身以外から選ぶ.
+      // ここからは, meaning_listは「selection_listの要素の候補」の意味をなす.
+      meaning_list.splice(now_num,1);
+      // 要素の個数の合計が9個になるように調整.
+      for (let i=0; i<9-data[now_num][2].length; i++) {
+        console.log(meaning_list)
+        // ランダムにmeaning_listから選ぶ.
+        n = rn(meaning_list.length-1);
+        m = rn(meaning_list[n].length-1);
+        selection_list.push(meaning_list[n][m]);
+        // すでに選んだものを除外.
+        meaning_list.splice(n, 1);
+      }
+      // meaning_listを初期化.
+      meaning_list = []
+      for (let i=0; i<data.length; i++) {
+        meaning_list.push(data[i][2])
+      };
+      // 自分自身をselecion_listに追加.
+      for (let i=0; i<meaning_list[now_num].length; i++) {
+        selection_list.push(meaning_list[now_num][i]);
+      };
+      console.log("selection_list: ", selection_list);
+      shuffle(selection_list)
+    };
+
+    function next() {
+      document.getElementById("next").setAttribute("disabled",true)
+      document.getElementById("check").removeAttribute("disabled")
+      document.getElementById("TorF").innerText = ""
+      document.getElementById("answers").innerText = ""
+      now_num = now_num + 1
+      
+      document.getElementById("slider_div").innerHTML = `<input type="range" min="0" max="` + String(data.length) + `" step="1" value="` + String(now_num+1) + `" class="slider" disabled>`
+      setSeekbar();
+      if (now_num == data.length) {
+        document.getElementById("check").setAttribute("disabled",true)
+        document.getElementById("TorF").innerText = "終了！"
+        document.getElementById("TorF").style.color = "#99CC33"
+        document.getElementById("answers").innerText = "お疲れさまでした。"
+        return
+      }
+      generate_selection()
+      // ページを初期化.
+      let HTML = "<p>" + data[now_num][0] + "</p>"
+      HTML = HTML + `
+        <div class="whole_selection">
+          <span class="selection" id="select1"><input type="checkbox" id="check1"><a>${selection_list[0]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select2"><input type="checkbox" id="check2"><a>${selection_list[1]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select3"><input type="checkbox" id="check3"><a>${selection_list[2]}</a></span>
+        </div>
+      `
+      HTML = HTML + `
+        <div class="whole_selection">
+          <span class="selection" id="select4"><input type="checkbox" id="check4"><a>${selection_list[3]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select5"><input type="checkbox" id="check5"><a>${selection_list[4]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select6"><input type="checkbox" id="check6"><a>${selection_list[5]}</a></span>
+        </div>
+      `
+      HTML = HTML + `
+        <div class="whole_selection">
+          <span class="selection" id="select7"><input type="checkbox" id="check7"><a>${selection_list[6]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select8"><input type="checkbox" id="check8"><a>${selection_list[7]}</a></span>
+          <span class="between"></span>
+          <span class="selection" id="select9"><input type="checkbox" id="check9"><a>${selection_list[8]}</a></span>
+        </div>
+      `
+      document.getElementById("main").innerHTML = HTML;
+      SetOnclick()
+    };
+
+    // 正誤判定.
+    function CheckTF() {
+      let checked_list = []
+      for (let i=1; i<10; i++) {
+        if (document.getElementById("check" + String(i)).checked) {checked_list.push(selection_list[i-1]);}
+      }
+      if (checked_list.length == 0) {
+        alert("チェックボックスを選択してください.");
+        return
+      }
+      console.log(checked_list)
+      let temp_list = meaning_list[now_num].slice();
+      if (String(temp_list.sort()) == String(checked_list.sort())) {
+        document.getElementById("TorF").innerText = "正解！"
+        document.getElementById("TorF").style.color = "red";
+      } else {
+        document.getElementById("TorF").innerText = "不正解..."
+        document.getElementById("TorF").style.color = "blue";
+      }
+      document.getElementById("check").setAttribute("disabled",true)
+      document.getElementById("next").removeAttribute("disabled")
+      document.getElementById("answers").innerText = String(data[now_num]).replace(",","〈").replace(",","〉：").split(",").join("，")
+    }
+
+    // チェックボックスのオンオフをそれぞれ切り替える.
+    function ChangeOnOff(num) {
+      let n_check = document.getElementById("check" + String(num))
+      console.log("不足点")
+      if (n_check.checked) {n_check.checked = false} else {n_check.checked = true}
+    };
+
+    function SetOnclick() {
+      for (let i=1; i<10; i++) {
+        document.getElementById("select" + String(i)).setAttribute("onclick", "ChangeOnOff(" + i + ")");
+        document.getElementById("check" + String(i)).setAttribute("onclick", "ChangeOnOff(" + i + ")");
+      };
+    };
+
+    document.getElementById("start").setAttribute("onclick", "init()");
   </script>
 </body>
 </html>
