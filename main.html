@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8">
-  <title>【古典】基本単語テスト</title>
+  <title>【古典】基本単語テスト（β版）</title>
   <style>
     @font-face {
       font-family: 'MPlus1-Ebold'; 
@@ -86,7 +86,7 @@
   </style>
 </head>
 <body>
-  <h1>【古典】基本単語小テスト</h1>
+  <h1>【古典】基本単語小テスト（β版）</h1>
   <div id="slider_div"><input type="range" min="0" max="2" step="1" value="0" class="slider" disabled></div>
   <div id="main" class="main">
     <br>
@@ -201,7 +201,7 @@
       document.getElementById("TorF").innerText = ""
       document.getElementById("answers").innerText = ""
       now_num = now_num + 1
-      
+
       document.getElementById("slider_div").innerHTML = `<input type="range" min="0" max="` + String(data.length) + `" step="1" value="` + String(now_num+1) + `" class="slider" disabled>`
       setSeekbar();
       if (now_num == data.length) {
