@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>【世界史】基本年代テスト</title>
+  <style>
+    @font-face {
+      font-family: 'MPlus1-Ebold'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/MPLUS1-ExtraBold.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'MPlus1-Regular'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/MPLUS1-Regular.ttf') format('truetype');
+    }
+    h1 {
+        font-weight: normal;
+        border-bottom: double 5px #FFC778;
+        line-height: 1.5;
+        font-family: "MPlus1-Ebold";
+    }
+    p {
+      font-family: "MPlus1-Ebold";
+      text-align: center;
+      font-size:50px;
+    }
+  </style>
+</head>
+<body>
+  <h1>【世界史】基本年代テスト！</h1>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script language="javascript" type="text/javascript">
+    let data; // (A).
+    url = "https://r52-jp.github.io/B-WORDS/data.txt";
+    $.get(url, (data_) => {
+      data = data_ // (A)に値を代入.
+    });
+  </script>
+</body>
+</html>
