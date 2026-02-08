@@ -33,100 +33,120 @@
       font-size:20px;
       line-height: 50px;
     }
-    .K {
-      color: blue;
+    button {
       font-family:'MPlus1-Regular'; 
-      border-bottom: solid 1px red;
-    }
-    .M {
-      color: blue;
-      font-family:'MPlus1-Regular'; 
-      border-bottom: solid 1px red;
+      font-size: medium;
     }
     .count {
       font-family:'MPlus1-Regular'; 
+    }
+    .kanji {
+      color: blue;
+      font-family:'MPlus1-Regular'; 
+      border-bottom: solid 1px red;
+    }
+    .mean {
+      color: blue;
+      font-family:'MPlus1-Regular'; 
+      border-bottom: solid 1px red;
     }
     .range {
       font-family:'MPlus1-Regular'; 
       width: 50px;
     }
-    button {
-      font-family:'MPlus1-Regular'; 
-      font-size: medium;
-    }
   </style>
 </head>
 <body>
   <h1 onclick="change_color()">【古典】基本単語小テスト（𝑝版）</h1>
-  <input class="range" id="start"><a class="range">番から</a><input class="range" id="end"><a class="range">番まで表示　</a><button onclick="init()">更新</button>
+  <input class="range" id="start"><a class="range">番から</a><input class="range" id="end"><a class="range">番まで表示　</a><button id="rebuild">更新</button>　<label><input type="checkbox" id="checkbox">関連語を表示/非表示</label>
   <div id="main"></div>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
   <script language="javascript" type="text/javascript">
-    let data; // (A).
+    let data;
+    const url = "https://r52-jp.github.io/B-WORDS/data-new.txt";
+    const sub_num = ["⑴","⑵","⑶","⑷","⑸"]
     const number_list = ["①", "②", "③", "④", "⑤","⑥","⑦","⑧","⑨","⑩"]
     let now_color = "blue"
-    let count = 0
-    const url = "https://r52-jp.github.io/B-WORDS/data.txt";
-    function init() {
-      count = 0;
-      $.get(url, (data_) => {
-        data = data_ // (A)に値を代入.
-        // 改行コードでdata(文字列)を分割→data(リスト).
-        data = data.split("\n");
-        // dataの要素のうち，値が「""」であるものを削除.
-        for (let i=0; i<data.length; i++) {
-          if (data[i] == "") {
-            data.splice(i, 1);
-          };
+    $.get(url, (data_) => {
+      data = data_ // (A)に値を代入.
+      // 改行コードでdata(文字列)を分割→data(リスト).
+      data = data.split("\n");
+      // dataの要素のうち，値が「""」であるものを削除.
+      for (let i=0; i<data.length; i++) {
+        if (data[i] == "") {
+          data.splice(i, 1);
         };
-        if ( (!document.getElementById("start").value == "") &&  (!document.getElementById("end").value == "")) {
-          count = parseInt(document.getElementById("start").value) - 1;
-          data = data.slice(parseInt(document.getElementById("start").value)-1, parseInt(document.getElementById("end").value));
+      };
+      // ":"でdataの各要素を分割.
+      for (let i=0; i<data.length; i++) {
+        data[i] = data[i].split(":");
+      };
+      // "/"で単語の意味ごとにdata[i][3]を分割.
+      for (let i=0; i<data.length; i++) {
+        data[i][3] = data[i][3].split("/");
+      };
+      generate(1, data.length, true);
+    });
+
+    function generate(start, end, rela) {
+      // startおよびendはデータ番号（1～）で指定.
+      // relaは関連語表示の有無.
+      let inHTML = ""
+      let real_end
+      if (end < data.length){
+        for (let i=0; i<data.length; i++) {
+          if (parseInt(end) + 1 == data[i][0]) {
+            real_end = i
+          } 
         }
-        // ":"でdataの各要素を分割.
-        for (let i=0; i<data.length; i++) {
-          data[i] = data[i].split(":");
+      } else {
+        real_end = end
+      }
+      for (let i=start - 1; i<real_end; i++) {
+        if (data[i][0].includes("-") && rela == false) {continue}
+        if (data[i][0].includes("-")) {
+          inHTML = inHTML + `　 <a class="count">${sub_num[ parseInt(data[i][0][2])-1 ]} </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
+        } else {
+          inHTML = inHTML + `<a class="count">${data[i][0]}. </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
         };
-        // "/"で単語の意味ごとにdata[i][2]を分割.
-        for (let i=0; i<data.length; i++) {
-          data[i][2] = data[i][2].split("/");
-        };
-        let inHTML = "";
-        // mainに追加.
-        for (let i=0; i<data.length; i++) {
-          count = count + 1;
-          inHTML = inHTML + `<a class="count">${count}．</a><a id="W${i}">${data[i][0]}</a><a>〈</a><a id="K${i}" class="K">${data[i][1]}</a><a>〉：</a>`
-          for (let j=0; j<data[i][2].length; j++) {
-            inHTML = inHTML + `<a>${number_list[j]}</a><a id="M${i}-${j}" class="M">${data[i][2][j]}</a>`
-            if (j != data[i][2].length-1) {
+        for (let j=0; j<data[i][3].length; j++) {
+            inHTML = inHTML + `<a>${number_list[j]}</a><a id="mean" class="mean">${data[i][3][j]}</a>`
+            if (j != data[i][3].length-1) {
               inHTML = inHTML + `<a>，</a>`
             }
-          };
-          inHTML = inHTML + "<br>";
         };
-        document.getElementById("main").innerHTML = inHTML;
-      });
+        inHTML = inHTML + "<br>";
+      };
+      document.getElementById("main").innerHTML = inHTML;
     };
-    init()
+
     function change_color() {
       if (now_color == "blue") {
-        now_color = "white"
-        for (let i=0; i<data.length; i++) {
-          document.getElementById(`K${i}`).style.color = "white"
-          for (let j=0; j<data[i][2].length; j++) {
-            document.getElementById(`M${i}-${j}`).style.color = "white"
-          };
-        };
+        now_color = "white";
+        let kanji_elements = document.getElementsByClassName("kanji")
+        let mean_elements = document.getElementsByClassName("mean")
+        for (let i = 0; i < kanji_elements.length; i++) {
+          kanji_elements[i].style.color = "white";
+        }
+        for (let i = 0; i < mean_elements.length; i++) {
+          mean_elements[i].style.color = "white";
+        }
       } else {
         now_color = "blue";
-        for (let i=0; i<data.length; i++) {
-          document.getElementById(`K${i}`).style.color = "blue"
-          for (let j=0; j<data[i][2].length; j++) {
-            document.getElementById(`M${i}-${j}`).style.color = "blue"
-          };
-        };
-      } 
+        let kanji_elements = document.getElementsByClassName("kanji")
+        let mean_elements = document.getElementsByClassName("mean")
+        for (let i = 0; i < kanji_elements.length; i++) {
+          kanji_elements[i].style.color = "blue";
+        }
+        for (let i = 0; i < mean_elements.length; i++) {
+          mean_elements[i].style.color = "blue";
+        }
+      }
     }
+    
+    let rebuild_onclick = "generate(" + `document.getElementById("start").value` + "," + `document.getElementById("end").value` + "," + `document.getElementById("checkbox").checked)`
+    document.getElementById("rebuild").setAttribute("onclick", rebuild_onclick)
+
   </script>
 </body>
 </html>
