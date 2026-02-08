@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>【古典】基本単語テスト（𝑝版）</title>
+  <style>
+    @font-face {
+      font-family: 'MPlus1-Ebold'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/MPLUS1-ExtraBold.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'MPlus1-Regular'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/MPLUS1-Regular.ttf') format('truetype');
+    }
+    @font-face {
+      font-family: 'ZenOldMincho-Medium'; 
+      src: url('https://r52-jp.github.io/WORDS/Fonts/ZenOldMincho-Medium.ttf') format('truetype');
+    }
+    h1 {
+        font-weight: normal;
+        border-bottom: double 5px #FFC778;
+        line-height: 1.5;
+        font-family: "ZenOldMincho-Medium";
+    }
+    p {
+      font-family: "ZenOldMincho-Medium";
+      text-align: center;
+      font-size:50px;
+    }
+    a {
+      font-family: 'ZenOldMincho-Medium'; 
+      text-align: center;
+      font-size:20px;
+      line-height: 50px;
+    }
+    .K {
+      color: blue;
+      font-family:'MPlus1-Regular'; 
+      border-bottom: solid 1px red;
+    }
+    .M {
+      color: blue;
+      font-family:'MPlus1-Regular'; 
+      border-bottom: solid 1px red;
+    }
+    .count {
+      font-family:'MPlus1-Regular'; 
+    }
+    .range {
+      font-family:'MPlus1-Regular'; 
+      width: 50px;
+    }
+    button {
+      font-family:'MPlus1-Regular'; 
+      font-size: medium;
+    }
+  </style>
+</head>
+<body>
+  <h1 onclick="change_color()">【古典】基本単語小テスト（𝑝版）</h1>
+  <input class="range" id="start"><a class="range">番から</a><input class="range" id="end"><a class="range">番まで表示　</a><button onclick="init()">更新</button>
+  <div id="main"></div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+  <script language="javascript" type="text/javascript">
+    let data; // (A).
+    const number_list = ["①", "②", "③", "④", "⑤","⑥","⑦","⑧","⑨","⑩"]
+    let now_color = "blue"
+    let count = 0
+    const url = "https://r52-jp.github.io/B-WORDS/data.txt";
+    function init() {
+      count = 0;
+      $.get(url, (data_) => {
+        data = data_ // (A)に値を代入.
+        // 改行コードでdata(文字列)を分割→data(リスト).
+        data = data.split("\n");
+        // dataの要素のうち，値が「""」であるものを削除.
+        for (let i=0; i<data.length; i++) {
+          if (data[i] == "") {
+            data.splice(i, 1);
+          };
+        };
+        if ( (!document.getElementById("start").value == "") &&  (!document.getElementById("end").value == "")) {
+          count = parseInt(document.getElementById("start").value) - 1;
+          data = data.slice(parseInt(document.getElementById("start").value)-1, parseInt(document.getElementById("end").value));
+        }
+        // ":"でdataの各要素を分割.
+        for (let i=0; i<data.length; i++) {
+          data[i] = data[i].split(":");
+        };
+        // "/"で単語の意味ごとにdata[i][2]を分割.
+        for (let i=0; i<data.length; i++) {
+          data[i][2] = data[i][2].split("/");
+        };
+        let inHTML = "";
+        // mainに追加.
+        for (let i=0; i<data.length; i++) {
+          count = count + 1;
+          inHTML = inHTML + `<a class="count">${count}．</a><a id="W${i}">${data[i][0]}</a><a>〈</a><a id="K${i}" class="K">${data[i][1]}</a><a>〉：</a>`
+          for (let j=0; j<data[i][2].length; j++) {
+            inHTML = inHTML + `<a>${number_list[j]}</a><a id="M${i}-${j}" class="M">${data[i][2][j]}</a>`
+            if (j != data[i][2].length-1) {
+              inHTML = inHTML + `<a>，</a>`
+            }
+          };
+          inHTML = inHTML + "<br>";
+        };
+        document.getElementById("main").innerHTML = inHTML;
+      });
+    };
+    init()
+    function change_color() {
+      if (now_color == "blue") {
+        now_color = "white"
+        for (let i=0; i<data.length; i++) {
+          document.getElementById(`K${i}`).style.color = "white"
+          for (let j=0; j<data[i][2].length; j++) {
+            document.getElementById(`M${i}-${j}`).style.color = "white"
+          };
+        };
+      } else {
+        now_color = "blue";
+        for (let i=0; i<data.length; i++) {
+          document.getElementById(`K${i}`).style.color = "blue"
+          for (let j=0; j<data[i][2].length; j++) {
+            document.getElementById(`M${i}-${j}`).style.color = "blue"
+          };
+        };
+      } 
+    }
+  </script>
+</body>
+</html>
