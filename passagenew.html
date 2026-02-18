@@ -64,7 +64,7 @@
   <script language="javascript" type="text/javascript">
     let data;
     const url = "https://r52-jp.github.io/B-WORDS/data-new.txt";
-    const sub_num = ["⑴","⑵","⑶","⑷","⑸"]
+    const sub_num = ["⑴","⑵","⑶","⑷","⑸","⑹","⑺","⑻","⑼","⑽","⑾"]
     const number_list = ["①", "②", "③", "④", "⑤","⑥","⑦","⑧","⑨","⑩"]
     let now_color = "blue"
     $.get(url, (data_) => {
@@ -85,24 +85,40 @@
       for (let i=0; i<data.length; i++) {
         data[i][3] = data[i][3].split("/");
       };
-      generate(1, data.length, true);
+      generate(0, data.length-1, true);
     });
 
-    function generate(start, end, rela) {
-      // startおよびendはデータ番号（1～）で指定.
-      // relaは関連語表示の有無.
-      let inHTML = ""
-      let real_end
-      if (end < data.length){
+
+    function GetListIndex(WordIndex) {
+      // 単語番号からdataでのインデックス（０～）を返す.
+      // 戻り値は[開始番号, 終了番号]. (関連語などでまたがる場合があるから).
+      let result_S;
+      let result_E;
+      let words_num = parseInt( data.slice(-1)[0][0].substr(0, 3) )
+      for (let i=0; i<data.length; i++) {
+        if (WordIndex == data[i][0]) {
+          result_S = i;
+          break;
+        } 
+      }
+      if (WordIndex == words_num) {
+        result_E = data.length - 1
+      } else {
         for (let i=0; i<data.length; i++) {
-          if (parseInt(end) + 1 == data[i][0]) {
-            real_end = i
+          if (WordIndex + 1 == data[i][0]) {
+            result_E = i - 1;
+            break;
           } 
         }
-      } else {
-        real_end = end
       }
-      for (let i=start - 1; i<real_end; i++) {
+      return [result_S, result_E]
+    };
+
+    function generate(start, end, rela) {
+      // startおよびendはリストインデックス（0～）で指定.
+      // relaは関連語表示の有無.
+      let inHTML = ""
+      for (let i=start; i<end+1; i++) {
         if (data[i][0].includes("-") && rela == false) {continue}
         if (data[i][0].includes("-")) {
           inHTML = inHTML + `　 <a class="count">${sub_num[ parseInt(data[i][0][2])-1 ]} </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
@@ -142,10 +158,19 @@
           mean_elements[i].style.color = "blue";
         }
       }
+    };
+
+    function onClick_rebuild() {
+      let s = parseInt(document.getElementById("start").value)
+      let e = parseInt(document.getElementById("end").value)
+      let r = document.getElementById("checkbox").checked
+      let words_num = parseInt( data.slice(-1)[0][0].substr(0, 3) )
+      if (0<s<=e<=words_num) {
+        generate(GetListIndex(s)[0], GetListIndex(e)[1], r)
+      }
     }
     
-    let rebuild_onclick = "generate(" + `document.getElementById("start").value` + "," + `document.getElementById("end").value` + "," + `document.getElementById("checkbox").checked)`
-    document.getElementById("rebuild").setAttribute("onclick", rebuild_onclick)
+    document.getElementById("rebuild").setAttribute("onclick", "onClick_rebuild()")
 
   </script>
 </body>
