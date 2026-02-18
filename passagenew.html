@@ -165,8 +165,11 @@
       let e = parseInt(document.getElementById("end").value)
       let r = document.getElementById("checkbox").checked
       let words_num = parseInt( data.slice(-1)[0][0].substr(0, 3) )
-      if (0<s<=e<=words_num) {
+      if (0<s<=e<=words_num && s && e) {
         generate(GetListIndex(s)[0], GetListIndex(e)[1], r)
+      } else {
+        alert("有効な値を入力してください.")
+        return
       }
     }
     
