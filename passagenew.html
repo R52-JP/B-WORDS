@@ -121,7 +121,7 @@
       for (let i=start; i<end+1; i++) {
         if (data[i][0].includes("-") && rela == false) {continue}
         if (data[i][0].includes("-")) {
-          inHTML = inHTML + `　 <a class="count">${sub_num[ parseInt(data[i][0][2])-1 ]} </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
+          inHTML = inHTML + `　 <a class="count">${sub_num[ parseInt(data[i][0].slice(-1))-1 ]} </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
         } else {
           inHTML = inHTML + `<a class="count">${data[i][0]}. </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
         };
