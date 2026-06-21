@@ -119,7 +119,6 @@
       // relaは関連語表示の有無.
       let inHTML = ""
       for (let i=start; i<end+1; i++) {
-        console.log(i);
         if (data[i][0].includes("-") && rela == false) {continue}
         if (data[i][0].includes("-")) {
           inHTML = inHTML + `　 <a class="count">${sub_num[ parseInt(data[i][0].slice(-1))-1 ]} </a><a>${data[i][1]}</a><a>〈</a><a id="kanji" class="kanji">${data[i][2]}</a><a>〉：</a>`
